@@ -1,7 +1,8 @@
 {
     "pages": [
-        "pages/order/main",
+        "pages/carding/main",
         "pages/index/main",
+        "pages/order/main",
         "pages/address/main",
         "pages/counter/main",
         "pages/logs/main"

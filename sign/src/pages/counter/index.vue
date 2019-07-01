@@ -4,17 +4,17 @@
         <div class="wrap">
             <div class="wrapItem">
                 <p>公司名称</p>
-                <input type="text" placeholder="请输入公司名称">
+                <input type="text" placeholder="请输入公司名称" :value="name" v-model="message" @input="changeName">
             </div>
             <div class="wrapItem">
                 <p>公司电话</p>
-                <input type="text" placeholder="请输入面试联系人电话">
+                <input type="text" placeholder="请输入面试联系人电话" :value="phone" v-model="message" @input="changePhone">
             </div>
             <div class="wrapItem">
                 <p>面试时间</p>
-                <picker class="picker" mode="date" :value="date" start="2019-06-28" end="2020-09-01" @change="bindDateChange">
+                <picker class="picker" mode="date" :value="time" start="2019-06-28" end="2020-09-01" @change="bindDateChange">
                     <div>
-                        {{date}}
+                        {{time}}
                     </div>
                 </picker>
                 <icon type="warn" size="24" color="#197DBF" @click="tobel"></icon>
@@ -26,21 +26,30 @@
         </div>
         <div class="title">备注信息</div>
         <div class="wrapElse">
-            <textarea class="text" name="" id="" cols="30" rows="10" placeholder="请输入备注信息"></textarea>    
+            <textarea class="text" :value="remarks" @input="changeRemarks" placeholder="请输入备注信息"></textarea>    
         </div>
-        <button class="btn">确定</button>
+        <button class="btn" @click="sure">确定</button>
     </div>
 </template>
 
 <script>
 
+import { mapState } from 'vuex';
+
 export default {
     data(){
         return {
-            date: '2019-06-28',
+            res:/^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\d{8}$/
         }
     },
     computed: {
+        ...mapState({
+            name:state=>state.index.name,
+            phone:state=>state.index.phone,
+            time:state=>state.index.time,
+            addres:state=>state.index.addres,
+            remarks:state=>state.index.remarks
+        })
     },
     methods: {
         choose(){
@@ -48,14 +57,66 @@ export default {
                 url:"../../pages/address/main"
             })
         },
-        bindDateChange(e){
-            this.date = e.mp.detail.value;
+        bindDateChange(e){//面试时间
+            this.$store.commit("index/changeTime",e.mp.detail.value);
         },
         tobel(){
             wx.showToast({
-                title: '成功',
+                title: '面试前一个小时我们会提醒你哦',
+                icon:"none",
                 duration: 2000
             })
+        },
+        changeName(e){//公司名称
+            this.$store.commit('index/changeName',e.target.value);
+        },
+        changePhone(e){//电话
+            this.$store.commit('index/changePhone',e.target.value);
+            
+        },
+        changeRemarks(e){//备注信息
+            this.$store.commit('index/changeRemarks',e.target.value);
+        },
+        sure(){//点击确定
+
+            if(this.name === ''){
+                wx.showToast({
+                    title: '请输入公司名称',
+                    icon:"none",
+                    duration: 2000
+                })
+            }else{
+                console.log(this.res.test(this.phone))
+                if(this.res.test(this.phone)){
+                    if(this.addres === ''){
+                        wx.showToast({
+                            title: '请选择公司地址',
+                            icon:"none",
+                            duration: 2000
+                        })
+                    }else{
+                        wx.showModal({
+                            title: '温馨提示',
+                            content: '添加面试成功',
+                            showCancel:false,
+                            confirmText:"确定",
+                            success (res) {
+                                if (res.confirm) {
+                                    wx.navigateTo({
+                                        url: '../order/main'
+                                    })
+                                }
+                            }
+                        })
+                    }
+                }else{
+                    wx.showToast({
+                        title: '请输入面试联系人的手机或座机',
+                        icon:"none",
+                        duration: 2000
+                    })
+                }
+            }
         }
     }
 }

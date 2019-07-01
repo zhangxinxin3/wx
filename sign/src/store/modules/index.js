@@ -13,13 +13,47 @@ const state = {
     },{
         title:"全部",
         flag:false
+    }],
+    name:"",
+    phone:"",
+    time:"2019-07-01",
+    addres:"",
+    remarks:"",
+    place:[{
+        title:"南锣鼓巷",
+        key:0
+    },{
+        title:"",
+        key:1
     }]
 }
+
+const getter={}
 
 const mutations = {
     upGetLocation(state,payload){
         state.longitude = payload.longitude;
         state.latitude = payload.latitude;
+    },
+    upIndex(state,payload){
+        console.log(payload)
+        state.list.map(item=>{
+            item.flag = false;
+        })
+        state.list[payload.payload].flag = true;
+    },
+    changeTime(state,payload){
+        console.log(payload)
+        state.time = payload;
+    },
+    changeName(state,payload){
+        state.name = payload;
+    },
+    changePhone(state,payload){
+        state.phone = payload;
+    },
+    changeRemarks(state,payload){
+        state.remarks = payload;
     }
 }
 
@@ -33,14 +67,21 @@ const actions = {
             }
         })    
     },
-    getIndex(state,payload){
-        console.log(payload)
+    getListDate(state,payload){
+        wx.request({
+            url:"127.0.0.1:7001/sign",
+            methods:"GET",
+            success(res){
+                console.log(res.data)
+            }
+        })
     }
 }
 
 export default {
     namespaced:true,
     state,
+    getter,
     mutations,
     actions
 }

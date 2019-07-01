@@ -11,10 +11,10 @@
                 style="width: 100%; height: 100%;">
             </map>
             <div class="poto">
-                <div class="potoItem">
+                <div class="potoItem" @click="local">
                     <img src="../../../static/images/location.png" alt="" />
                 </div>
-                <div class="potoItem potoBack">
+                <div class="potoItem potoBack" @click="comeTo">
                     <img src="../../../static/images/my.png" alt="" />
                 </div>
                 
@@ -57,6 +57,14 @@ export default {
             wx.navigateTo({
                 url:"../../pages/counter/main"
             })
+        },
+        comeTo(){
+            wx.navigateTo({
+                url:"../../pages/logs/main"
+            })
+        },
+        local(){
+            this.getLocation();
         }
     }
 }
