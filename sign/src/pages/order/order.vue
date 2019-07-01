@@ -12,11 +12,26 @@
             当前分类还没有面试！
         </div> -->
         <div class="wrap">
-            <div class="wrapItem">
-                <div class="itemLeft">
-                    <p>a</p>
-                    <span>北京市通州区徐尹路</span>
-                    <p>面试时间:2019-06-29 09:00</p>
+            <div class="wrapItem" v-for="item in data" :key="item.id">
+                <div class="itemLeft" v-if="item.key===-1">
+                    <p>{{item.company}}</p>
+                    <span>{{JSON.parse(item.address).address}}</span>
+                    <p>面试时间:{{item.create_time}}</p>
+                </div>
+                <div class="itemLeft" v-else-if="item.key===0">
+                    <p>{{item.company}}</p>
+                    <span>{{JSON.parse(item.address).address}}</span>
+                    <p>面试时间:{{item.create_time}}</p>
+                </div>
+                <div class="itemLeft" v-else-if="item.key === 1">
+                    <p>{{item.company}}</p>
+                    <span>{{item.address}}</span>
+                    <p>面试时间:{{item.create_time}}</p>
+                </div>
+                <div class="itemLeft" v-else>
+                    <p>{{item.company}}</p>
+                    <span>{{JSON.parse(item.address).address}}</span>
+                    <p>面试时间:{{item.create_time}}</p>
                 </div>
                 <div class="itemRight">
                     <span>已放弃</span>
@@ -39,20 +54,23 @@ export default {
     },
     computed:{
         ...mapState({
-            list:state=>state.index.list
+            list:state=>state.index.list,
+            data:state=>state.index.data,
+            key:state=>state.index.key
         })
     },
     methods:{
         tab(index){
-            this.index = index;
             this.$store.commit({
                 type:"index/upIndex",
                 payload:index
-            })
+            }),
+            this.$store.dispatch('index/getListDate')
         },
     },
     created(){
         this.$store.dispatch('index/getListDate')
+        console.log(this)
     }
 
 }

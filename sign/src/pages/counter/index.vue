@@ -12,10 +12,13 @@
             </div>
             <div class="wrapItem">
                 <p>面试时间</p>
-                <picker class="picker" mode="date" :value="time" start="2019-06-28" end="2020-09-01" @change="bindDateChange">
+                <!-- <picker class="picker" mode="date" :value="time" start="2019-06-28" end="2020-09-01" @change="bindDateChange">
                     <div>
                         {{time}}
                     </div>
+                </picker> -->
+                <picker class="picker" mode="multiSelector" @change="bindMultiPickerChange" :value="multiIndex" :range="newMultiArray">
+                    <span>{{time}}</span>
                 </picker>
                 <icon type="warn" size="24" color="#197DBF" @click="tobel"></icon>
             </div>
@@ -39,10 +42,55 @@ import { mapState } from 'vuex';
 export default {
     data(){
         return {
-            res:/^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\d{8}$/
+            res:/^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\d{8}$/,
+            time: "2019-7-1 12:00",
+      multiArray: [],
+      multiIndex: [0, 0, 0],
+      years : '',
+      months : ''
         }
     },
+
+
+    created(){
+        const date = new Date();
+      const year = date.getFullYear();
+      const month = date.getMonth()+1;
+      this.years = year;
+      this.months = month >= 10 ? month : '0' + month;
+    },
+    
     computed: {
+        
+        newMultiArray: () => {
+      let array = [];
+      const date = new Date();
+      const days = [];
+      const hours = [];
+      const minutes = [];
+      for (let i = 1; i <= 31; i++) {
+        if (i < 10) {
+          i = "0" + i;
+        }
+        days.push("" + i);
+      }
+      array.push(days);
+      for (let i = 0; i < 24; i++) {
+        if (i < 10) {
+          i = "0" + i;
+        }
+        hours.push("" + i);
+      }
+      array.push(hours);
+      for (let i = 0; i < 60; i++) {
+        if (i < 10) {
+          i = "0" + i;
+        }
+        minutes.push("" + i);
+      }
+      array.push(minutes);
+      return array;
+    },
         ...mapState({
             name:state=>state.index.name,
             phone:state=>state.index.phone,
@@ -117,7 +165,20 @@ export default {
                     })
                 }
             }
-        }
+        },
+        bindMultiPickerChange(e) {
+      this.multiIndex = e.target.value;
+      console.log("当前选择的时间", this.multiIndex);
+      const index = this.multiIndex;
+      console.log(this.newMultiArray)
+      const day = this.newMultiArray[0][index[0]];
+      const hour = this.newMultiArray[1][index[1]];
+      const minute = this.newMultiArray[2][index[2]];
+      this.time = this.years + "-" + this.months + "-" + day + " " + hour + ":" + minute;
+      this.$store.commit('index/changeTime',{
+          time:this.time
+      })
+    }
     }
 }
 </script>

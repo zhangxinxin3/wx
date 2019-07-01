@@ -2,14 +2,37 @@
     <div class="wrapper">
         <div class="wrapTop">
             <div class="city">北京</div>
-            <input type="text" placeholder="面试地址">
+            <input type="text" placeholder="面试地址" :value="ress" @input="search">
+        </div>
+        <div class="list" v-if="searches.length>0">
+            <div v-for="item in searches" :key="item.key" @click="choose(item.key)">
+                {{item.title}}
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-export default {
 
+import { mapState } from 'vuex';
+export default {
+    computed:mapState({
+        places:state=>state.index.places,
+        ress:state=>state.index.ress,
+        searches:state=>state.index.searches
+    }),
+    methods:{
+        search(e){
+            this.$store.commit('index/search',{
+                value:e.target.value
+            })
+        },
+        choose(key){
+            this.$store.commit('index/choose',{
+                key
+            })
+        }
+    }
 }
 </script>
 

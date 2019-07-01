@@ -1,7 +1,7 @@
 {
     "pages": [
-        "pages/carding/main",
         "pages/index/main",
+        "pages/carding/main",
         "pages/order/main",
         "pages/address/main",
         "pages/counter/main",

@@ -1,42 +1,68 @@
+import request from '@/utils/request';
+
 const state = {
+    openid:'',
+    phone:'',
     longitude: '113.324520',
     latitude: '23.099994',
     list:[{
         title:"未开始",
-        flag:true
+        flag:true,
+        key:-1
     },{
-        title:"未打卡",
-        flag:false
+        title:"已打卡",
+        flag:false,
+        key:0
     },{
-        title:"未放弃",
-        flag:false
+        title:"已放弃",
+        flag:false,
+        key:1
     },{
         title:"全部",
-        flag:false
+        flag:false,
+        key:2
     }],
     name:"",
     phone:"",
     time:"2019-07-01",
     addres:"",
     remarks:"",
-    place:[{
+    places:[{
         title:"南锣鼓巷",
         key:0
     },{
-        title:"",
+        title:"a",
         key:1
-    }]
+    },{
+        title:"abc",
+        key:2
+    },{
+        title:"de",
+        key:3
+    },{
+        title:"ade",
+        key:4
+    }],
+    lists:[],
+    data:[],
+    key:-1,
+    ress:'',
+    searches:[]
 }
 
 const getter={}
 
 const mutations = {
+    getCode(state,payload){
+        state.openid = payload.openid;
+        state.phone = payload.phone;
+    },
     upGetLocation(state,payload){
         state.longitude = payload.longitude;
         state.latitude = payload.latitude;
     },
     upIndex(state,payload){
-        console.log(payload)
+        state.key = state.list[payload.payload].key;
         state.list.map(item=>{
             item.flag = false;
         })
@@ -54,6 +80,30 @@ const mutations = {
     },
     changeRemarks(state,payload){
         state.remarks = payload;
+    },
+    getList(state,payload){
+        state.lists = payload; 
+        state.data = state.lists.filter(item=>item.status === state.key);
+        if(state.key===2){
+            state.data = state.lists;
+        }
+    },
+    search(state,payload){
+        state.ress = payload.value;
+        let data = [];
+        state.places.map(item=>{
+            if(item.title.indexOf(payload.value) === -1){
+                return ;
+            }else{
+                data.push(item)
+            }
+        })
+        state.searches = data
+    },
+    choose(state,payload){
+        console.log(payload.key)
+        let item = state.places.filter(item=>item.key === payload.key);
+        state.ress = item[0].title;
     }
 }
 
@@ -68,12 +118,9 @@ const actions = {
         })    
     },
     getListDate(state,payload){
-        wx.request({
-            url:"127.0.0.1:7001/sign",
-            methods:"GET",
-            success(res){
-                console.log(res.data)
-            }
+        let res = request.get('/sign');
+        res.then((res)=>{
+            state.commit('getList',res.data)
         })
     }
 }
