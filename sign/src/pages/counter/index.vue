@@ -4,19 +4,14 @@
         <div class="wrap">
             <div class="wrapItem">
                 <p>公司名称</p>
-                <input type="text" placeholder="请输入公司名称" :value="name" v-model="message" @input="changeName">
+                <input type="text" placeholder="请输入公司名称" :value="name" v-model="name" @input="changeName">
             </div>
             <div class="wrapItem">
                 <p>公司电话</p>
-                <input type="text" placeholder="请输入面试联系人电话" :value="phone" v-model="message" @input="changePhone">
+                <input type="text" placeholder="请输入面试联系人电话" :value="phone" v-model="phone" @input="changePhone">
             </div>
             <div class="wrapItem">
                 <p>面试时间</p>
-                <!-- <picker class="picker" mode="date" :value="time" start="2019-06-28" end="2020-09-01" @change="bindDateChange">
-                    <div>
-                        {{time}}
-                    </div>
-                </picker> -->
                 <picker class="picker" mode="multiSelector" @change="bindMultiPickerChange" :value="multiIndex" :range="newMultiArray">
                     <span>{{time}}</span>
                 </picker>
@@ -24,7 +19,8 @@
             </div>
             <div class="wrapItem">
                 <p>面试地址</p>
-                <div @click="choose">选择面试地址</div>
+                <div @click="choose" v-if="ress === ''">选择面试地址</div>
+                <div @click="choose" v-else>{{ress}}</div>
             </div>
         </div>
         <div class="title">备注信息</div>
@@ -43,60 +39,65 @@ export default {
     data(){
         return {
             res:/^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\d{8}$/,
-            time: "2019-7-1 12:00",
-      multiArray: [],
-      multiIndex: [0, 0, 0],
-      years : '',
-      months : ''
+            multiArray: [],
+            multiIndex: [0, 0, 0]
         }
     },
 
-
     created(){
-        const date = new Date();
-      const year = date.getFullYear();
-      const month = date.getMonth()+1;
-      this.years = year;
-      this.months = month >= 10 ? month : '0' + month;
+        this.$store.commit('index/getTime');
     },
     
     computed: {
-        
-        newMultiArray: () => {
-      let array = [];
-      const date = new Date();
-      const days = [];
-      const hours = [];
-      const minutes = [];
-      for (let i = 1; i <= 31; i++) {
-        if (i < 10) {
-          i = "0" + i;
-        }
-        days.push("" + i);
-      }
-      array.push(days);
-      for (let i = 0; i < 24; i++) {
-        if (i < 10) {
-          i = "0" + i;
-        }
-        hours.push("" + i);
-      }
-      array.push(hours);
-      for (let i = 0; i < 60; i++) {
-        if (i < 10) {
-          i = "0" + i;
-        }
-        minutes.push("" + i);
-      }
-      array.push(minutes);
-      return array;
-    },
+        newMultiArray(){
+            let array = [];
+            const date = new Date();
+            const days = [];
+            const hours = [];
+            const minutes = [];
+            const year = date.getFullYear();
+            const month = date.getMonth()+1;
+            const day = date.getDate();
+            const hour = date.getHours();
+
+            var dates=new Date(year,month,0);
+            var dayes=dates.getDate();
+
+            console.log(typeof hour)
+
+            for (let i = day; i <= day+10; i++) {
+                days.push(i);
+            }
+
+            array.push(days);
+
+            for (let i = hour+1; i < 24; i++) {
+                hours.push(i);
+            }
+            
+            for(let i = 0;i <= hour; i++){
+                hours.push(i);
+            }
+            
+            array.push(hours);
+
+            
+            for (let i = 0; i < 60; i++) {
+                if(i%10 === 0){
+                    minutes.push(parseInt(i/10)+'0');
+                }
+            }
+            array.push(minutes);
+            return array;
+        },
         ...mapState({
             name:state=>state.index.name,
             phone:state=>state.index.phone,
             time:state=>state.index.time,
-            addres:state=>state.index.addres,
-            remarks:state=>state.index.remarks
+            remarks:state=>state.index.remarks,
+            ress:state=>state.index.ress,
+            years:state=>state.index.years,
+            months:state=>state.index.months
         })
     },
     methods: {
@@ -104,9 +105,6 @@ export default {
             wx.navigateTo({
                 url:"../../pages/address/main"
             })
-        },
-        bindDateChange(e){//面试时间
-            this.$store.commit("index/changeTime",e.mp.detail.value);
         },
         tobel(){
             wx.showToast({
@@ -126,7 +124,6 @@ export default {
             this.$store.commit('index/changeRemarks',e.target.value);
         },
         sure(){//点击确定
-
             if(this.name === ''){
                 wx.showToast({
                     title: '请输入公司名称',
@@ -134,28 +131,15 @@ export default {
                     duration: 2000
                 })
             }else{
-                console.log(this.res.test(this.phone))
                 if(this.res.test(this.phone)){
-                    if(this.addres === ''){
+                    if(this.ress === ''){
                         wx.showToast({
                             title: '请选择公司地址',
                             icon:"none",
                             duration: 2000
                         })
                     }else{
-                        wx.showModal({
-                            title: '温馨提示',
-                            content: '添加面试成功',
-                            showCancel:false,
-                            confirmText:"确定",
-                            success (res) {
-                                if (res.confirm) {
-                                    wx.navigateTo({
-                                        url: '../order/main'
-                                    })
-                                }
-                            }
-                        })
+                        this.$store.dispatch('index/addSigns')
                     }
                 }else{
                     wx.showToast({
@@ -167,18 +151,16 @@ export default {
             }
         },
         bindMultiPickerChange(e) {
-      this.multiIndex = e.target.value;
-      console.log("当前选择的时间", this.multiIndex);
-      const index = this.multiIndex;
-      console.log(this.newMultiArray)
-      const day = this.newMultiArray[0][index[0]];
-      const hour = this.newMultiArray[1][index[1]];
-      const minute = this.newMultiArray[2][index[2]];
-      this.time = this.years + "-" + this.months + "-" + day + " " + hour + ":" + minute;
-      this.$store.commit('index/changeTime',{
-          time:this.time
-      })
-    }
+            this.multiIndex = e.target.value;
+            const index = this.multiIndex;
+            const day = this.newMultiArray[0][index[0]];
+            const hour = this.newMultiArray[1][index[1]];
+            const minute = this.newMultiArray[2][index[2]];
+            let time = this.years + "-" + this.months + "-" + day + " " + hour + ":" + minute;
+            this.$store.commit('index/changeTime',{
+                time
+            })
+        }
     }
 }
 </script>

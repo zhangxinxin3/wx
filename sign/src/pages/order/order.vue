@@ -8,19 +8,16 @@
                 {{item.title}}
             </div>
         </div>
-        <!-- <div>
-            当前分类还没有面试！
-        </div> -->
         <div class="wrap">
-            <div class="wrapItem" v-for="item in data" :key="item.id">
+            <div class="wrapItem" v-for="item in data" :key="item.id" @click="detail(item.id)">
                 <div class="itemLeft" v-if="item.key===-1">
                     <p>{{item.company}}</p>
-                    <span>{{JSON.parse(item.address).address}}</span>
+                    <span>{{item.address}}</span>
                     <p>面试时间:{{item.create_time}}</p>
                 </div>
                 <div class="itemLeft" v-else-if="item.key===0">
                     <p>{{item.company}}</p>
-                    <span>{{JSON.parse(item.address).address}}</span>
+                    <span>{{item.address}}</span>
                     <p>面试时间:{{item.create_time}}</p>
                 </div>
                 <div class="itemLeft" v-else-if="item.key === 1">
@@ -30,7 +27,7 @@
                 </div>
                 <div class="itemLeft" v-else>
                     <p>{{item.company}}</p>
-                    <span>{{JSON.parse(item.address).address}}</span>
+                    <span>{{item.address}}</span>
                     <p>面试时间:{{item.create_time}}</p>
                 </div>
                 <div class="itemRight">
@@ -67,10 +64,18 @@ export default {
             }),
             this.$store.dispatch('index/getListDate')
         },
+        detail(id){
+            this.$store.dispatch('index/getDetail',{
+                id
+            })
+            wx.navigaTo({
+                url:"/pages/carding/main"
+            })
+        }
     },
     created(){
+        console.log(111)
         this.$store.dispatch('index/getListDate')
-        console.log(this)
     }
 
 }
@@ -81,12 +86,13 @@ export default {
     width: 100%;
     height: 100%;
     background: #eee;
-    display: flex;
-    flex-direction: column;
+    /* display: flex;
+    flex-direction: column; */
 }
 .wrapTop{
     width: 100%;
     height:100rpx;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-around;
@@ -106,8 +112,8 @@ export default {
 .wrap{
     flex:1;
     width: 100%;
-    display: flex;
-    flex-direction: column;
+    /* display: flex;
+    flex-direction: column; */
     background:#fff;
 }
 .wrapItem{
@@ -131,6 +137,8 @@ export default {
     font-size:30rpx;
 }
 .itemRight{
+    width:200rpx;
+    margin-left:10rpx;
     display: flex;
     flex-direction: column;
     align-items: center;

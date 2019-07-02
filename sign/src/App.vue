@@ -31,20 +31,8 @@ export default {
         wx.login({
             success (res) {
                 if (res.code) {
-                //发起网络请求
-                    request.post('/user/code2session',{
+                    store.dispatch('index/getCode',{
                         code:res.code
-                    }).then(res=>{
-                        if(res.code===0){
-                            store.commit("index/getCode",{
-                                openid:res.data.openid,
-                                phone:res.data.phone
-                            })
-                            wx.setStorage({
-                                key:"openid",
-                                data:res.data.openid
-                            })
-                        }
                     })
                 } else {
                     console.log('登录失败！' + res.errMsg)
@@ -86,6 +74,10 @@ export default {
 </script>
 
 <style>
+page{
+    width: 100%;
+    height: 100%;
+}
 .container {
   height: 100%;
   display: flex;
